@@ -1,19 +1,20 @@
 <template>
-  <div class="converter p-6 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4">
-    <div class="flex w-full justify-between">
-      <select v-model="selectedEra" @change="calculateYear" class="w-full p-2 border border-gray-300 rounded-md">
-        <option value="gregorian">西暦</option>
-        <option value="kouki">皇紀</option>
-        <option value="showa">昭和</option>
-        <option value="heisei">平成</option>
-        <option value="reiwa">令和</option>
-      </select>
-
-      <input type="number" v-model.number="inputYear" placeholder="年を入力" @input="calculateYear"
-        class="w-full p-2 border border-gray-300 rounded-md" />
-    </div>
-    <div class="output text-lg text-blue-600 font-bold">
-      <p>変換結果: {{ result }}</p>
+  <div class="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-200">
+    <div class="converter w-full max-w-2xl p-8 bg-white shadow-lg rounded-xl">
+      <div class="flex w-full justify-between">
+        <select v-model="selectedEra" @change="calculateYear" class="w-full p-2 border border-gray-300 rounded-md">
+          <option value="gregorian">西暦</option>
+          <option value="kouki">皇紀</option>
+          <option value="showa">昭和</option>
+          <option value="heisei">平成</option>
+          <option value="reiwa">令和</option>
+        </select>
+        <input type="number" v-model.number="inputYear" placeholder="年を入力" @input="calculateYear"
+          class="w-full p-2 border border-gray-300 rounded-md" />
+      </div>
+      <div class="output text-lg text-blue-600 font-bold">
+        <p>変換結果: {{ result }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -50,7 +51,7 @@ export default defineComponent({
             result.value = `令和${inputYear.value}年は西暦${year}年です`;
           }
           break;
-          case 'kouki':
+        case 'kouki':
           if (inputYear.value !== null) {
             year = inputYear.value - 660;
             result.value = `皇紀${inputYear.value}年は西暦${year}年です`;
@@ -76,6 +77,7 @@ export default defineComponent({
 <style scoped>
 .converter {
   display: flex;
+  position: relative;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.5rem;
