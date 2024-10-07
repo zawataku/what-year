@@ -1,6 +1,7 @@
 <template>
   <div class="flex flex-col items-center justify-center min-h-screen p-6 bg-gray-200">
-    <div class="converter w-full max-w-2xl p-8 bg-white shadow-lg rounded-xl">
+    <div class="w-full max-w-2xl p-8 bg-white shadow-lg rounded-xl flex relative flex-col items-start gap-2">
+      <h1 class="font-bold text-2xl mx-auto pt-2 pb-3">今は何年？ 計算ツール</h1>
       <div class="flex w-full justify-between">
         <select v-model="selectedEra" @change="calculateYear" class="w-full p-2 border border-gray-300 rounded-md">
           <option value="gregorian">西暦</option>
@@ -12,78 +13,111 @@
         <input type="number" v-model.number="inputYear" placeholder="年を入力" @input="calculateYear"
           class="w-full p-2 border border-gray-300 rounded-md" />
       </div>
-      <div class="output text-lg text-blue-600 font-bold">
-        <p>変換結果: {{ result }}</p>
+      
+      <div class="mt-4 text-lg font-bold">
+        <table class="table-auto w-full text-blue-600">
+          <tbody>
+            <tr>
+              <td class="px-4 py-2 border">西暦</td>
+              <td class="px-4 py-2 border">{{ result.gregorian }}年</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border">昭和</td>
+              <td class="px-4 py-2 border">{{ result.showa }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border">平成</td>
+              <td class="px-4 py-2 border">{{ result.heisei }}</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2 border">令和</td>
+              <td class="px-4 py-2 border">{{ result.reiwa }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 
 export default defineComponent({
   name: 'App',
   setup() {
     const selectedEra = ref<string>('gregorian');
     const inputYear = ref<number | null>(null);
-    const result = ref<string>('');
+    const result = ref({
+      gregorian: '',
+      showa: '',
+      heisei: '',
+      reiwa: ''
+    });
 
     const calculateYear = () => {
-      let year = 0;
+      if (inputYear.value === null) {
+        result.value = { gregorian: '', showa: '', heisei: '', reiwa: '' };
+        return;
+      }
+
+      let gregorianYear;
 
       switch (selectedEra.value) {
         case 'showa':
-          if (inputYear.value !== null) {
-            year = inputYear.value + 1925;
-            result.value = `昭和${inputYear.value}年は西暦${year}年です`;
-          }
+          gregorianYear = inputYear.value + 1925;
+          result.value = {
+            gregorian: gregorianYear.toString(),
+            showa: `昭和${inputYear.value}年`,
+            heisei: gregorianYear >= 1989 ? `平成${gregorianYear - 1988}年` : '-',
+            reiwa: gregorianYear >= 2019 ? `令和${gregorianYear - 2018}年` : '-'
+          };
           break;
         case 'heisei':
-          if (inputYear.value !== null) {
-            year = inputYear.value + 1988;
-            result.value = `平成${inputYear.value}年は西暦${year}年です`;
-          }
+          gregorianYear = inputYear.value + 1988;
+          result.value = {
+            gregorian: gregorianYear.toString(),
+            showa: gregorianYear >= 1926 && gregorianYear < 1989 ? `昭和${gregorianYear - 1925}年` : '-',
+            heisei: `平成${inputYear.value}年`,
+            reiwa: gregorianYear >= 2019 ? `令和${gregorianYear - 2018}年` : '-'
+          };
           break;
         case 'reiwa':
-          if (inputYear.value !== null) {
-            year = inputYear.value + 2018;
-            result.value = `令和${inputYear.value}年は西暦${year}年です`;
-          }
+          gregorianYear = inputYear.value + 2018;
+          result.value = {
+            gregorian: gregorianYear.toString(),
+            showa: gregorianYear >= 1926 && gregorianYear < 1989 ? `昭和${gregorianYear - 1925}年` : '-',
+            heisei: gregorianYear >= 1989 && gregorianYear < 2019 ? `平成${gregorianYear - 1988}年` : '-',
+            reiwa: `令和${inputYear.value}年`
+          };
           break;
         case 'kouki':
-          if (inputYear.value !== null) {
-            year = inputYear.value - 660;
-            result.value = `皇紀${inputYear.value}年は西暦${year}年です`;
-          }
+          gregorianYear = inputYear.value - 660;
+          result.value = {
+            gregorian: gregorianYear.toString(),
+            showa: gregorianYear >= 1926 && gregorianYear < 1989 ? `昭和${gregorianYear - 1925}年` : '-',
+            heisei: gregorianYear >= 1989 && gregorianYear < 2019 ? `平成${gregorianYear - 1988}年` : '-',
+            reiwa: gregorianYear >= 2019 ? `令和${gregorianYear - 2018}年` : '-'
+          };
           break;
         default:
-          if (inputYear.value !== null) {
-            result.value = `西暦${inputYear.value}年です`;
-          }
+          gregorianYear = inputYear.value;
+          result.value = {
+            gregorian: gregorianYear.toString(),
+            showa: gregorianYear >= 1926 && gregorianYear < 1989 ? `昭和${gregorianYear - 1925}年` : '-',
+            heisei: gregorianYear >= 1989 && gregorianYear < 2019 ? `平成${gregorianYear - 1988}年` : '-',
+            reiwa: gregorianYear >= 2019 ? `令和${gregorianYear - 2018}年` : '-'
+          };
       }
     };
+
+    watch([selectedEra, inputYear], calculateYear);
 
     return {
       selectedEra,
       inputYear,
-      result,
-      calculateYear
+      result
     };
   }
 });
 </script>
-
-<style scoped>
-.converter {
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
-}
-
-.output {
-  margin-top: 1rem;
-}
-</style>
